@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>首页</title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/index.css" />
+		<script src="js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/index.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body>
+		<header>
+			<span class="mui-icon mui-icon-search"></span>
+			<input type="text" class="search" placeholder="搜索基站" readonly="readonly" />
+			<span class="mui-icon mui-icon-map" onclick="userLocation();" id="userLocation"></span>
+		</header>
+		<div id="map">
+
+		</div>
+		<nav class="mui-bar mui-bar-tab" id="ban">
+			<a id="list" class="mui-tab-item home">
+				<span class="mui-icon mui-icon-list"></span>
+				<span class="mui-tab-label">仪器列表</span>
+			</a>
+			<a class="mui-tab-item" id="control">
+				<span class="mui-icon mui-icon-settings"></span>
+				<span class="mui-tab-label">仪器控制</span>
+			</a>
+			<a class="mui-tab-item mine" id="mine">
+				<span class="mui-icon mui-icon-person"></span>
+				<span class="mui-tab-label">我的</span>
+			</a>
+		</nav>
+		<script type="text/javascript">
+			mui.init({});
+			mui.ready(function() {
+				mui.plusReady(function() {
+					var login = plus.webview.getWebviewById(plus.runtime.appid);
+					plus.webview.close(login);
+					var first = null;
+					mui.back = function() {
+						//首次按键，提示‘再按一次退出应用’
+						if(!first) {
+							first = new Date().getTime();
+							mui.toast('再按一次退出应用');
+							setTimeout(function() {
+								first = null;
+							}, 1000);
+						} else {
+							if(new Date().getTime() - first < 1000) {
+								plus.runtime.quit();
+							}
+						}
+					};
+				})
+			});
+		</script>
+	</body>
+
+</html>

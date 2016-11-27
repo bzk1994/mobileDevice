@@ -1,0 +1,20 @@
+.logo{
+	display: block;
+	margin:30px auto 15px;
+}
+.mui-content{
+	text-align: center;
+}
+.des{
+	width:90vw;
+	font-size:18px;
+	color:#666;
+	margin:30px auto 30px;
+}
+.normal span{
+	font-size: 14px!important;
+}
+.name{
+	font-weight: 500;
+	color:#333;
+}

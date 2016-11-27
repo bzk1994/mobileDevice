@@ -1,0 +1,39 @@
+body{
+	background: #1BD4C6!important;
+}
+.top{
+	text-align: center;
+	margin: 10vh 0 5vh;
+}
+.top h3{
+	margin-bottom:5vh;
+	color:#fff;
+}
+.top img{
+	width:80vw;
+}
+.form{
+	text-align: center;
+}
+.form input{
+	border: none;
+	border-bottom: 1px #555555 solid;
+	background: transparent;
+	width:90vw;
+	outline: none;
+}
+.login{
+	width:85vw;
+	height:15vw;
+	background: #2C2F3E;
+	border: none;
+	border-radius: 5px;
+	color:#fff;
+	font-size:1.1rem;
+	font-weight: 600;
+	letter-spacing: 5px;
+}
+.forget{
+	color:#184EB0;
+	padding-top:3vh;
+}

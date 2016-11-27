@@ -1,0 +1,164 @@
+{
+	"index.html": {
+		"resources": [
+			"css/index.css",
+			"js/common.js",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/immersed.js",
+			"js/index.js",
+			"js/jquery-2.2.3.min.js"
+		],
+		"refer": [
+			"html/list/list_main.html",
+			"html/mine/mine.html",
+			"html/search.html",
+			"html/control/list_main.html",
+			"html/control/control_main.html"
+		]
+	},
+	"login.html": {
+		"resources": [
+			"js/util.js",
+			"css/login.css",
+			"js/mui.min.js",
+			"js/login.js",
+			"css/mui.min.css",
+			"js/jquery-2.2.3.min.js",
+			"images/location.png",
+			"js/jQuery.md5.js",
+			"js/jsMD5.js"
+		],
+		"refer": [
+			"index.html"
+		]
+	},
+	"html/list/list_main.html": {
+		"resources": [
+			"html/list/pullrefresh_sub.html",
+			"css/mui.css",
+			"js/mui.min.js",
+			"fonts/mui.ttf"
+		],
+		"refer": [
+			"html/list/pullrefresh_sub.html"
+		]
+	},
+	"html/list/pullrefresh_sub.html": {
+		"resources": [
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/mui.min.js",
+			"js/jquery.tmpl.min.js",
+			"js/jquery-2.2.3.min.js",
+			"js/util.js",
+			"images/dh.png",
+			"images/find.png"
+		],
+		"refer": []
+	},
+	"html/mine/mine.html": {
+		"resources": [
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/jquery-2.2.3.min.js"
+		],
+		"refer": [
+			"html/mine/edit.html",
+			"html/mine/about.html",
+			"login.html"
+		]
+	},
+	"html/mine/edit.html": {
+		"resources": [
+			"js/mine/edit.js",
+			"js/jsMD5.js",
+			"js/util.js",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/jquery-2.2.3.min.js"
+		],
+		"refer": []
+	},
+	"html/mine/about.html": {
+		"resources": [
+			"js/jquery-2.2.3.min.js",
+			"images/location.png",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"css/about.css",
+			"js/util.js"
+		],
+		"refer": []
+	},
+	"html/search.html": {
+		"resources": [
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/jquery.tmpl.min.js",
+			"js/util.js",
+			"js/jquery-2.2.3.min.js",
+			"images/dh.png"
+		]
+	},
+	"html/control/list_main.html": {
+		"resources": [
+			"html/control/pullrefresh_sub.html",
+			"css/mui.css",
+			"js/mui.min.js",
+			"fonts/mui.ttf"
+		],
+		"refer": [
+			"html/control/pullrefresh_sub.html"
+		]
+	},
+	"html/control/pullrefresh_sub.html": {
+		"resources": [
+			"js/jquery.tmpl.min.js",
+			"js/util.js",
+			"js/mui.min.js",
+			"css/mui.min.css",
+			"js/jquery-2.2.3.min.js"
+		],
+		"refer": [
+			"html/control/control.html"
+		]
+	},
+	"html/control/control.html": {
+		"resources": [
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/jquery-2.2.3.min.js",
+			"js/control.js"
+		]
+	},
+	"html/control/control_sub.html": {
+		"resources": [
+			"js/jquery.tmpl.min.js",
+			"js/util.js",
+			"css/mui.min.css",
+			"js/jquery-2.2.3.min.js",
+			"js/mui.min.js"
+		],
+		"refer": [
+			"html/control/control.html"
+		]
+	},
+	"html/control/control_main.html": {
+		"resources": [
+			"html/control/control_sub.html",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.css"
+		],
+		"refer": [
+			"html/control/control_sub.html"
+		]
+	}
+}

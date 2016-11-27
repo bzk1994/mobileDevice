@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			.mui-content>.mui-table-view:first-child {
+				margin: 0!important;
+			}
+			
+			input {
+				margin-bottom: 0!important;
+			}
+			
+			.mui-content {
+				background: #fff!important;
+				height: 100vh!important;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">修改密码</h1>
+		</header>
+		<div class="mui-content">
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<input type="text" id="old" value="" placeholder="请输入原密码" />
+				</li>
+				<li class="mui-table-view-cell">
+					<input type="text" id="new1" value="" placeholder="请输入新密码" />
+				</li>
+				<li class="mui-table-view-cell">
+					<input type="text" id="new2" value="" placeholder="请重复新密码" />
+				</li>
+			</ul>
+			<button type="button" class="mui-btn mui-badge-green mui-btn-block" id="btn">完成</button>
+		</div>
+		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/util.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/jsMD5.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mine/edit.js" type="text/javascript" charset="utf-8"></script>
+	</body>
+
+</html>

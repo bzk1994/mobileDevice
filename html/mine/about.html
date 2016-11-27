@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../../css/about.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">关于我们</h1>
+		</header>
+		<div class="mui-content">
+		    <img src="../../images/location.png" class="logo" />
+		    <h2 class="name"></h2>
+		    <p class="des"></p>
+		    <p class="normal">
+		    	<span class="mui-icon mui-icon-phone">
+		    	<span id="phone">
+		    		
+		    	</span>
+		    </p>
+		    <p class="normal">
+		    	<span class="mui-icon mui-icon-location">
+		    	<span id="address">
+		    	</span>
+		    </p>
+		</div>
+		<script src="../../js/util.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init();
+			mui.plusReady(function () {
+			    plus.nativeUI.showWaiting();
+			    var user = JSON.parse(localStorage.getItem('$guardUser'));
+			    mui.ajax(util.url+'/About',{
+			    	data:{
+			    		userName:user.userName,
+   	    				password:user.password,
+   	    				ip:user.ip
+			    	},
+			    	dataType:'json',//服务器返回json格式数据
+			    	type:'post',//HTTP请求类型
+			    	timeout:10000,//超时时间设置为10秒；
+			    	success:function(data){
+			    		plus.nativeUI.closeWaiting();
+			    		if (data.error_code=='0') {
+			    			$('.name').html(data.name);
+			    			$('.des').html(data.introduce);
+			    			$('#phone').html(data.tel);
+			    			$('#address').html(data.address);
+			    		}
+			    	},
+			    	error:function(xhr,type,errorThrown){
+			    		plus.nativeUI.closeWaiting();
+			    	}
+			    });
+			})
+		</script>
+	</body>
+
+</html>
