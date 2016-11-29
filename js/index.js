@@ -13,46 +13,76 @@ function plusReady() {
 	wo = ws.opener();
 	//高德地图坐标为(116.3974357341,39.9085574220), 百度地图坐标为(116.3975,39.9074)
 	pcenter = new plus.maps.Point(110.3975, 35.9074);
-	setTimeout(function() {
+//	setTimeout(function() {
 		map = new plus.maps.Map("map");
 		map.centerAndZoom(pcenter, 6);
 		var address = JSON.parse(localStorage.getItem('$guardAddress')).data;
 		for(var i = 0; i < address.length; i++) {
 			createMarker(address[i]);
 		}
+		
 		// 创建子窗口
 		//		createSubview();
-	}, 300);
+//	}, 300);
 	// 显示页面并关闭等待框
 	ws.show("pop-in");
 
-		// 监听点击消息事件
-		plus.push.addEventListener("click", function(msg) {
-			// 判断是从本地创建还是离线推送的消息
-			switch(msg.payload) {
-				case "LocalMSG":
-//					var list = plus.webview.getWebviewById('mesList.html');
-//					mui.fire(list, 'mesRefresh');
-					alert(msg.content);
-					break;
-				default:
-					// 处理其它数据
-					if(plus.os.name == "iOS") {
-						mui.toast('IOS');
-					}
-					break;
-			}
-		}, false);
-		// 监听在线消息事件
-		plus.push.addEventListener("receive", function(msg) {
-			if(msg.aps) { // Apple APNS message
-			} else {
-				if(plus.os.name == "Android") {
-					alert('收到！');
-					createLocalPushMsg(msg.title, msg.content);
+	// 监听点击消息事件
+	plus.push.addEventListener("click", function(msg) {
+		// 判断是从本地创建还是离线推送的消息
+		switch(msg.payload) {
+			case "LocalMSG":
+				//					var list = plus.webview.getWebviewById('mesList.html');
+				//					mui.fire(list, 'mesRefresh');
+				alert(msg.content);
+				break;
+			default:
+				// 处理其它数据
+				if(plus.os.name == "iOS") {
+					mui.toast('IOS');
 				}
+				break;
+		}
+	}, false);
+	// 监听在线消息事件
+	plus.push.addEventListener("receive", function(msg) {
+		if(msg.aps) { // Apple APNS message
+		} else {
+			if(plus.os.name == "Android") {
+				alert('收到！');
+				var localLost;
+				if (localStorage.getItem('$localLost')==null) {
+					localLost = {};
+					localStorage.setItem('$localLost',JSON.stringify(localLost));
+				}else{
+					localLost = JSON.parse(localStorage.getItem('$localLost'));
+				}
+				
+				//将点插入数组
+				var lost = JSON.parse(msg.content);
+				var mac = lost.mac;
+				if (localLost[mac]==undefined) {
+					localLost[mac] = new Array();
+					localLost[mac].push(lost);
+					localStorage.setItem('$localLost',JSON.stringify(localLost));
+				}else{
+					localLost[mac].push(lost);
+					localStorage.setItem('$localLost',JSON.stringify(localLost));
+				}
+				//遍历当前数组，绘出路线
+				var lostArray = localLost[mac];
+				lostArray.push(lost);
+				if (lostArray.length>1) {
+					for (var i = 0; i < lostArray.length; i++) {
+						lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+					}
+					var polylineObj = new plus.maps.Polyline(lostArray);
+					map.addOverlay(polylineObj);
+				}
+				createLocalPushMsg(msg.title, msg.content);
 			}
-		}, false);
+		}
+	}, false);
 
 	function createLocalPushMsg(title, content) {
 		var options = {
@@ -64,7 +94,8 @@ function plusReady() {
 			mui.toast('*如果无法创建消息，请到"设置"->"通知"中配置应用在通知中心显示!');
 		}
 	}
-
+	
+	
 }
 if(window.plus) {
 	plusReady();

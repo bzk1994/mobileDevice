@@ -335,7 +335,8 @@
 					"fonts/mui.ttf",
 					"css/mui.min.css",
 					"js/jquery-2.2.3.min.js",
-					"js/control.js"
+					"js/control.js",
+					"js/util.js"
 				],
 				"refer": [],
 				"priority": 0

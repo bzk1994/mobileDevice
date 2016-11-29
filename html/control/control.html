@@ -17,12 +17,12 @@
 		    <ul class="mui-table-view">
 		            <li class="mui-table-view-cell">
 		                <a class="mui-navigate-right" id="pause">
-		                    暂停工作
+		                    	暂停工作
 		                </a>
 		            </li>
 		            <li class="mui-table-view-cell">
 		                <a class="mui-navigate-right" id="reset">
-		                     重启基站
+		                    	 重启基站
 		                </a>
 		            </li>
 		            <li class="mui-table-view-cell" id="query">
@@ -30,15 +30,22 @@
 		                     查询状态
 		                </a>
 		            </li>
-		             <li class="mui-table-view-cell" id="feedBack">
-		                <a class="mui-navigate-right">
-		                     反馈时间
-		                </a>
-		            </li>
 		        </ul>
+		       	<div class="picker">
+		       		<p class="title">反馈时间</p>
+		       		<div class="mui-row" id="normal">
+		       		    <label>正常上报</label><span class="normal"></span>
+		       		</div>
+		       		<div class="mui-row" id="mobile">
+		       		    <label>移动上报</label><span class="mobile"></span>
+		       		</div>
+		       	</div>
+		       	<input type="hidden" class="normalVal" />
+		       	<input type="hidden" class="mobileVal" />
 		</div>
 		<script src="../../js/mui.min.js"></script>
 		<script src="../../js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/util.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../js/control.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			mui.init();

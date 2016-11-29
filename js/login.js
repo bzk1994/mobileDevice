@@ -50,7 +50,7 @@
    	    				};
    	    				localStorage.setItem('$guardUser',JSON.stringify(user));
    	    				localStorage.setItem('$guardAddress',JSON.stringify(data));
-   	    				
+   	    				console.log(util.getUser());
    	    				mui.openWindow('index.html','index.html',{
    	    					
    	    				});
