@@ -6,6 +6,36 @@
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="../../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="../../css/mui.picker.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/mui.poppicker.css"/>
+		<style type="text/css">
+			.picker{
+				background: #fff;
+				margin-top:15px;
+				padding:15px;
+			}
+			.title{
+				font-size:18px;
+				color:#333;
+				border-bottom:1px solid #e2e2e2;
+				padding-bottom:10px;
+			}
+			.picker>div{
+				padding:10px;
+				border-bottom: 1px solid #e2e2e2;
+								
+			}
+			.normal,.mobile{
+				float:right;
+				color:#666;
+				font-size:14px;
+			}
+			#btn{
+				width:80vw;
+				height:60px;
+				margin: 10vw auto!important;
+			}
+		</style>
 	</head>
 
 	<body>
@@ -34,16 +64,19 @@
 		       	<div class="picker">
 		       		<p class="title">反馈时间</p>
 		       		<div class="mui-row" id="normal">
-		       		    <label>正常上报</label><span class="normal"></span>
+		       		    <label>正常上报</label><span class="normal"><span class="hour"></span><span class="minute"></span></span>
 		       		</div>
 		       		<div class="mui-row" id="mobile">
 		       		    <label>移动上报</label><span class="mobile"></span>
 		       		</div>
+		       		<button type="button" class="mui-btn mui-btn-blue mui-btn-block" id="btn" disabled="disabled">保存</button>
 		       	</div>
 		       	<input type="hidden" class="normalVal" />
 		       	<input type="hidden" class="mobileVal" />
 		</div>
 		<script src="../../js/mui.min.js"></script>
+		<script src="../../js/mui.picker.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../../js/mui.poppicker.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../js/util.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../../js/control.js" type="text/javascript" charset="utf-8"></script>
