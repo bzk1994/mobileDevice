@@ -12,3 +12,8 @@
 	
 	
 })(window.util = {})
+document.addEventListener("resume", function() {
+    var pushManager = plus.android.importClass("com.igexin.sdk.PushManager");
+    var context = plus.android.runtimeMainActivity();
+    pushManager.getInstance().initialize(context);
+  }, false);

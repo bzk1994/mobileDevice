@@ -13,7 +13,7 @@ function plusReady() {
 	wo = ws.opener();
 	//高德地图坐标为(116.3974357341,39.9085574220), 百度地图坐标为(116.3975,39.9074)
 	pcenter = new plus.maps.Point(110.3975, 35.9074);
-//	setTimeout(function() {
+
 		map = new plus.maps.Map("map");
 		map.centerAndZoom(pcenter, 6);
 		var address = JSON.parse(localStorage.getItem('$guardAddress')).data;
@@ -21,9 +21,22 @@ function plusReady() {
 			createMarker(address[i]);
 		}
 		
-		// 创建子窗口
-		//		createSubview();
-//	}, 300);
+//		//遍历画出所有路线
+//		if (localStorage.getItem('$localLost')!=null) {
+//			var localLost = JSON.parse(localStorage.getItem('$localLost'));
+//			for(var i in localLost){
+//				var lostArray = localLost[i];
+//				if (lostArray.length>1) {
+//					for (var i = 0; i < lostArray.length; i++) {
+//						lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+//					}
+//					var polylineObj = new plus.maps.Polyline(lostArray);
+//					map.addOverlay(polylineObj);
+//				}
+//			}
+//		}
+		
+		
 	// 显示页面并关闭等待框
 	ws.show("pop-in");
 
@@ -33,7 +46,7 @@ function plusReady() {
 		switch(msg.payload) {
 			case "LocalMSG":
 				//					var list = plus.webview.getWebviewById('mesList.html');
-				//					mui.fire(list, 'mesRefresh');
+				//mui.fire(list, 'mesRefresh');
 				alert(msg.content);
 				break;
 			default:
@@ -49,37 +62,61 @@ function plusReady() {
 		if(msg.aps) { // Apple APNS message
 		} else {
 			if(plus.os.name == "Android") {
-				alert('收到！');
-				var localLost;
-				if (localStorage.getItem('$localLost')==null) {
-					localLost = {};
-					localStorage.setItem('$localLost',JSON.stringify(localLost));
-				}else{
-					localLost = JSON.parse(localStorage.getItem('$localLost'));
-				}
-				
-				//将点插入数组
-				var lost = JSON.parse(msg.content);
-				var mac = lost.mac;
-				if (localLost[mac]==undefined) {
-					localLost[mac] = new Array();
-					localLost[mac].push(lost);
-					localStorage.setItem('$localLost',JSON.stringify(localLost));
-				}else{
-					localLost[mac].push(lost);
-					localStorage.setItem('$localLost',JSON.stringify(localLost));
-				}
-				//遍历当前数组，绘出路线
-				var lostArray = localLost[mac];
-				lostArray.push(lost);
-				if (lostArray.length>1) {
-					for (var i = 0; i < lostArray.length; i++) {
-						lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+					var receiveData = JSON.parse(msg.content);
+					if (plus.webview.getWebviewById('control.html')) {
+						var control = plus.webview.getWebviewById('control.html');
 					}
-					var polylineObj = new plus.maps.Polyline(lostArray);
-					map.addOverlay(polylineObj);
-				}
-				createLocalPushMsg(msg.title, msg.content);
+					if (receiveData.header!=null) {
+						if (receiveData.header == '0000') {
+							//提示断开连接
+							mui.fire(control,'offLine',{});
+						}
+						if (receiveData.header == '9003') {
+							if (receiveData.check=='1') {
+								mui.fire(control,'setOK',{});
+							}else{
+								mui.fire(control,'setNo',{});
+							}
+						}
+						if (receiveData.header == '9004') {
+							if (receiveData.check=='1') {
+								mui.fire(control,'success',{});
+							}else{
+								mui.fire(control,'faile',{});
+							}
+						}
+					}else{
+						var localLost;
+						if (localStorage.getItem('$localLost')==null) {
+							localLost = {};
+							localStorage.setItem('$localLost',JSON.stringify(localLost));
+						}else{
+							localLost = JSON.parse(localStorage.getItem('$localLost'));
+						}
+						
+						//将点插入数组
+						var lost = JSON.parse(msg.content);
+						var mac = lost.mac;
+						if (localLost[mac]==undefined) {
+							localLost[mac] = new Array();
+							localLost[mac].push(lost);
+							localStorage.setItem('$localLost',JSON.stringify(localLost));
+						}else{
+							localLost[mac].push(lost);
+							localStorage.setItem('$localLost',JSON.stringify(localLost));
+						}
+						//遍历当前数组，绘出路线
+						var lostArray = localLost[mac];
+						lostArray.push(lost);
+						if (lostArray.length>1) {
+							for (var i = 0; i < lostArray.length; i++) {
+								lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+							}
+							var polylineObj = new plus.maps.Polyline(lostArray);
+							map.addOverlay(polylineObj);
+						}
+						createLocalPushMsg(msg.title, msg.content);
+					}
 			}
 		}
 	}, false);

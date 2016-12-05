@@ -35,6 +35,15 @@
 				height:60px;
 				margin: 10vw auto!important;
 			}
+			.availed{
+				display: block;
+			}
+			#pause,#reset{
+				display: none;
+			}
+			.availed{
+				display: block!important;
+			}
 		</style>
 	</head>
 
@@ -45,14 +54,14 @@
 		</header>
 		<div class="mui-content">
 		    <ul class="mui-table-view">
-		            <li class="mui-table-view-cell">
-		                <a class="mui-navigate-right" id="pause">
-		                    	暂停工作
+		            <li class="mui-table-view-cell" id="pause">
+		                <a class="mui-navigate-right" >
+		                    	警报解除
 		                </a>
 		            </li>
-		            <li class="mui-table-view-cell">
-		                <a class="mui-navigate-right" id="reset">
-		                    	 重启基站
+		            <li class="mui-table-view-cell" id="reset">
+		                <a class="mui-navigate-right" >
+		                    	 警报恢复
 		                </a>
 		            </li>
 		            <li class="mui-table-view-cell" id="query">

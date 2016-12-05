@@ -10,10 +10,14 @@ window.onload = function() {
 		var minute = 0;
 		var second = 0;
 		
-		$('header h1').html(data.des);
-		if(status == 1) {
-
-		}
+//		$('header h1').html(data.des);
+//		if(diviceStatus == 1) {
+//			$('#reset').removeClass('availed');
+//			$('#pause').addClass('availed');
+//		}else if (diviceStatus==2) {
+//			$('#pause').removeClass('availed');
+//			$('#reset').addClass('availed');
+//		}
 		
 		//获取当前反馈时间
 		var user = JSON.parse(util.getUser());
@@ -29,6 +33,7 @@ window.onload = function() {
 			type: 'post', //HTTP请求类型
 			timeout: 10000, //超时时间设置为10秒；
 			success: function(data) {
+				console.log(JSON.stringify(data));
 				plus.nativeUI.closeWaiting();
 				if(data.error_code == 0) {
 					var result = parseInt(data.minutes);
@@ -43,9 +48,20 @@ window.onload = function() {
 					$('.hour').html(h);
 					$('.minute').html(m);
 					$('.mobile').html(data.seconds + '秒');
-					
+					if (data.connection==0) {
+						mui.toast('仪器未连接');
+						mui.back();
+					}
 					//改变按钮状态
 					$('#btn').removeAttr('disabled');
+					
+					if(data.status == 1) {
+						$('#reset').removeClass('availed');
+						$('#pause').addClass('availed');
+					}else if (data.status==2) {
+						$('#pause').removeClass('availed');
+						$('#reset').addClass('availed');
+					}
 				} else {
 					mui.toast('网络错误')
 				}
@@ -64,11 +80,23 @@ window.onload = function() {
         var ws;
         var SocketCreated = false;
         var isUserloggedout = false;
+        var pointStatus;
+        
+        
         function ToggleConnectionClicked(str) {
-            if(str=="1003"){
-                //pack="1003,998877665544004,120,10";
-                pack = '1003,'+mac+','+(hour*60+minute)+','+second;
-                console.log(pack);
+            switch (str){
+            	case '1003':
+            		pack = '1003'+'000001'+mac+','+(hour*60+minute)+','+second;
+                	console.log(pack);
+            		break;
+            	case '1004':
+            		pack = '1004'+'000001'+mac+pointStatus;
+            		break;
+            	case '1007':
+            		pack = '1007'+'000001'+mac;
+            		break;
+            	default:
+            		break;
             }
             if (SocketCreated && (ws.readyState == 0 || ws.readyState == 1)) {
                
@@ -100,7 +128,7 @@ window.onload = function() {
         };
         //
         function WSonMessage(event) {
-            console.log('mes:'+event)
+           // console.log('mes:'+event)
         };
         //
         function WSonClose() {
@@ -117,21 +145,48 @@ window.onload = function() {
 		
 		//1003
 		$('#btn').on('tap',function(){
-			ToggleConnectionClicked(1003);
+			plus.nativeUI.showWaiting();
+			ToggleConnectionClicked('1003');
 		});
-		
-		
-		
-		
-		//****************************************************
-		$('#pause').on('tap', function() {
-
+		//1004
+		$('#pause').on('tap',function(){
+			pointStatus = '2';
+			plus.nativeUI.showWaiting();
+			ToggleConnectionClicked('1004');
 		});
-		$('#reset').on('tap', function() {
-
+		$('#reset').on('tap',function(){
+			pointStatus = '1';
+			plus.nativeUI.showWaiting();
+			ToggleConnectionClicked('1004');
 		});
+		//1007
 		$('#query').on('tap', function() {
-
+			plus.nativeUI.showWaiting();
+			mui.ajax(util.url + '/SetTime',{
+				data:{
+					userName: user.userName,
+					password: user.password,
+					ip: user.ip,
+					mac: mac
+				},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(data){
+					plus.nativeUI.closeWaiting();
+					if(data.error_code == 0) {
+						if (data.connection==1) {
+							mui.toast('仪器连接正常！');
+						}else if(data.connection==0){
+							mui.toast('仪器连接中断！');
+						}
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					plus.nativeUI.closeWaiting();
+					mui.toast('网络超时');
+				}
+			});
 		});
 		
 		
@@ -179,6 +234,64 @@ window.onload = function() {
 				$('.mobile').html(items[0].text);
 			})
 		});
-	})
+		
+		
+		// 监听在线消息事件
+//		plus.push.addEventListener("receive", function(msg) {
+//			if(msg.aps) { // Apple APNS message
+//			} else {
+//				if(plus.os.name == "Android") {
+//					alert(msg.title+msg.content);
+//					plus.nativeUI.closeWaiting();
+//					var receiveData = JSON.parse(msg.content);
+//					if (receiveData.header!=null) {
+//						if (receiveData.header == '0000') {
+//							//提示断开连接
+//							mui.toast('仪器已断开连接');
+//							mui.back();
+//						}
+//						if (receiveData.header == '9003') {
+//							if (receiveData.check=='1') {
+//								mui.toast('反馈时间设置成功!');
+//							}else{
+//								mui.toast('反馈时间设置失败!');
+//							}
+//						}
+//						if (receiveData.header == '9004') {
+//							if (receiveData.check=='1') {
+//								mui.toast('操作成功!');
+//							}else{
+//								mui.toast('操作失败!');
+//							}
+//						}
+//					}
+//				}
+//			}
+//		})
 
+		window.addEventListener('offLine',function(){
+			plus.nativeUI.closeWaiting();
+			mui.toast('仪器已断开连接');
+			mui.back();
+		});
+		window.addEventListener('setOK',function(){
+			plus.nativeUI.closeWaiting();
+			mui.toast('反馈时间设置成功');
+		});
+		window.addEventListener('setNo',function(){
+			plus.nativeUI.closeWaiting();
+			mui.toast('反馈时间设置失败');
+		});
+		
+		window.addEventListener('success',function(){
+			plus.nativeUI.closeWaiting();
+			mui.toast('操作成功');
+		});
+		window.addEventListener('faile',function(){
+			plus.nativeUI.closeWaiting();
+			mui.toast('操作失败');
+		});
+		
+		
+	})
 }
