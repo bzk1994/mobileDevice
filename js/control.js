@@ -10,14 +10,6 @@ window.onload = function() {
 		var minute = 0;
 		var second = 0;
 		
-//		$('header h1').html(data.des);
-//		if(diviceStatus == 1) {
-//			$('#reset').removeClass('availed');
-//			$('#pause').addClass('availed');
-//		}else if (diviceStatus==2) {
-//			$('#pause').removeClass('availed');
-//			$('#reset').addClass('availed');
-//		}
 		
 		//获取当前反馈时间
 		var user = JSON.parse(util.getUser());
@@ -67,7 +59,8 @@ window.onload = function() {
 				}
 			},
 			error: function(xhr, type, errorThrown) {
-
+				alert('error');
+				plus.nativeUI.closeWaiting();
 			}
 		});
 
@@ -161,6 +154,8 @@ window.onload = function() {
 		});
 		//1007
 		$('#query').on('tap', function() {
+			console.log(util.getUser());
+			console.log(mac);
 			plus.nativeUI.showWaiting();
 			mui.ajax(util.url + '/SetTime',{
 				data:{

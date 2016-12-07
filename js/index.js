@@ -20,43 +20,43 @@ function plusReady() {
 		for(var i = 0; i < address.length; i++) {
 			createMarker(address[i]);
 		}
-		
-//		//遍历画出所有路线
-//		if (localStorage.getItem('$localLost')!=null) {
-//			var localLost = JSON.parse(localStorage.getItem('$localLost'));
-//			for(var i in localLost){
-//				var lostArray = localLost[i];
-//				if (lostArray.length>1) {
-//					for (var i = 0; i < lostArray.length; i++) {
-//						lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
-//					}
-//					var polylineObj = new plus.maps.Polyline(lostArray);
-//					map.addOverlay(polylineObj);
-//				}
-//			}
-//		}
+		console.log(localStorage.getItem('$localLost'));
+		//遍历画出所有路线
+		if (localStorage.getItem('$localLost')!=null) {
+			var localLost = JSON.parse(localStorage.getItem('$localLost'));
+			for(var i in localLost){
+				var lostArray = localLost[i];
+				if (lostArray.length>1) {
+					for (var i = 0; i < lostArray.length; i++) {
+						lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+					}
+					var polylineObj = new plus.maps.Polyline(lostArray);
+					map.addOverlay(polylineObj);
+				}
+			}
+		}
 		
 		
 	// 显示页面并关闭等待框
 	ws.show("pop-in");
 
-	// 监听点击消息事件
-	plus.push.addEventListener("click", function(msg) {
-		// 判断是从本地创建还是离线推送的消息
-		switch(msg.payload) {
-			case "LocalMSG":
-				//					var list = plus.webview.getWebviewById('mesList.html');
-				//mui.fire(list, 'mesRefresh');
-				alert(msg.content);
-				break;
-			default:
-				// 处理其它数据
-				if(plus.os.name == "iOS") {
-					mui.toast('IOS');
-				}
-				break;
-		}
-	}, false);
+//	// 监听点击消息事件
+//	plus.push.addEventListener("click", function(msg) {
+//		// 判断是从本地创建还是离线推送的消息
+//		switch(msg.payload) {
+//			case "LocalMSG":
+//				//					var list = plus.webview.getWebviewById('mesList.html');
+//				//mui.fire(list, 'mesRefresh');
+//				alert(msg.content);
+//				break;
+//			default:
+//				// 处理其它数据
+//				if(plus.os.name == "iOS") {
+//					mui.toast('IOS');
+//				}
+//				break;
+//		}
+//	}, false);
 	// 监听在线消息事件
 	plus.push.addEventListener("receive", function(msg) {
 		if(msg.aps) { // Apple APNS message

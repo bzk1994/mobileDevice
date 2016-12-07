@@ -91,20 +91,47 @@
 			var address;
 			$(function(){
 				$('#pullrefresh').on('tap','.dh',function(){
-					satnav = true;
-					address = {
-						longitude:$(this).attr('longitude'),
-						latitude:$(this).attr('latitude'),
-						des:$(this).attr('des'),
-						status:$(this).attr('liStatus'),
-						mac:$(this).attr('mac')
-					};
-					mui.openWindow('control.html','control.html',{
-						extras:{
-							data:address
+					var user = JSON.parse(util.getUser());
+					var longitude=$(this).attr('longitude');
+					var latitude=$(this).attr('latitude');
+					var des=$(this).attr('des');
+					var status=$(this).attr('liStatus');
+					var mac=$(this).attr('mac');
+					mui.ajax(util.url+'/SetTime',{
+						data:{
+							userName: user.userName,
+							password: user.password,
+							ip: user.ip,
+							mac: $(this).attr('mac')
 						},
-						createNew:true
+						dataType:'json',//服务器返回json格式数据
+						type:'post',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+						success:function(data){
+							if (data.connection==0) {
+								mui.toast('仪器未连接');
+							}else{
+								satnav = true;
+								address = {
+									longitude:longitude,
+									latitude:latitude,
+									des:des,
+									status:status,
+									mac:mac
+								};
+								mui.openWindow('control.html','control.html',{
+									extras:{
+										data:address
+									},
+									createNew:true
+								});
+							}
+						},
+						error:function(xhr,type,errorThrown){
+							
+						}
 					});
+					
 				})
 			})
 		</script>
