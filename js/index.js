@@ -16,19 +16,52 @@ function plusReady() {
 
 		map = new plus.maps.Map("map");
 		map.centerAndZoom(pcenter, 6);
-		var address = JSON.parse(localStorage.getItem('$guardAddress')).data;
-		for(var i = 0; i < address.length; i++) {
-			createMarker(address[i]);
-		}
-		console.log(localStorage.getItem('$localLost'));
+		
+		//获取基站
+		var address;
+		var user = JSON.parse(localStorage.getItem('$guardUser'));
+				mui.ajax(util.url+'/BaseGet',{
+					data:{
+						userName:user.userName,
+   	    				password:user.password,
+   	    				ip:user.ip
+					},	
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(data){
+						if (data.data.length>0) {
+							console.log(JSON.stringify(data));
+							address = data.data;
+							for(var i = 0; i < address.length; i++) {
+								createMarker(address[i]);
+							}
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+						mui.toast('网络超时！');
+					}
+				});
+			
+		
+		
+		
+		
+		
+		
+		//localStorage.setItem('$localLost','{"bzk":[{"mac":"bzk","longitude":"114.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"47.22"},{"mac":"bzk","longitude":"123.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"45.22"},{"mac":"bzk","longitude":"117.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"49.22"},{"mac":"bzk","longitude":"134.23","latitude":"49.22"},{"mac":"bzk","longitude":"104.23","latitude":"39.22"},{"mac":"bzk","longitude":"110.23","latitude":"49.22"}]}');
+		//获取用户位置
+		userLocation();
+		
 		//遍历画出所有路线
 		if (localStorage.getItem('$localLost')!=null) {
 			var localLost = JSON.parse(localStorage.getItem('$localLost'));
 			for(var i in localLost){
 				var lostArray = localLost[i];
 				if (lostArray.length>1) {
-					for (var i = 0; i < lostArray.length; i++) {
-						lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+					for (var j = 0; j < lostArray.length; j++) {
+						lostArray[j] = new plus.maps.Point(lostArray[j].longitude,lostArray[j].latitude);
 					}
 					var polylineObj = new plus.maps.Polyline(lostArray);
 					map.addOverlay(polylineObj);
@@ -36,27 +69,42 @@ function plusReady() {
 			}
 		}
 		
+		//路线清除
+		$('#clear').on('tap',function(){
+			plus.nativeUI.confirm('清除所有路线？',function (e) {
+				if(e.index ==1){
+					map.clearOverlays();
+					localStorage.removeItem('$localLost');
+					for(var i = 0; i < address.length; i++) {
+						createMarker(address[i]);
+					}
+				}
+			},'提示',['取消','确认']);
+			
+		});
+		
+		
 		
 	// 显示页面并关闭等待框
 	ws.show("pop-in");
 
-//	// 监听点击消息事件
-//	plus.push.addEventListener("click", function(msg) {
-//		// 判断是从本地创建还是离线推送的消息
-//		switch(msg.payload) {
-//			case "LocalMSG":
-//				//					var list = plus.webview.getWebviewById('mesList.html');
-//				//mui.fire(list, 'mesRefresh');
-//				alert(msg.content);
-//				break;
-//			default:
-//				// 处理其它数据
-//				if(plus.os.name == "iOS") {
-//					mui.toast('IOS');
-//				}
-//				break;
-//		}
-//	}, false);
+	// 监听点击消息事件
+	plus.push.addEventListener("click", function(msg) {
+		// 判断是从本地创建还是离线推送的消息
+		switch(msg.payload) {
+			case "LocalMSG":
+				//					var list = plus.webview.getWebviewById('mesList.html');
+				//mui.fire(list, 'mesRefresh');
+				//alert(msg.content);
+				break;
+			default:
+				// 处理其它数据
+				if(plus.os.name == "iOS") {
+					mui.toast('IOS');
+				}
+				break;
+		}
+	}, false);
 	// 监听在线消息事件
 	plus.push.addEventListener("receive", function(msg) {
 		if(msg.aps) { // Apple APNS message
@@ -96,26 +144,31 @@ function plusReady() {
 						
 						//将点插入数组
 						var lost = JSON.parse(msg.content);
-						var mac = lost.mac;
-						if (localLost[mac]==undefined) {
-							localLost[mac] = new Array();
-							localLost[mac].push(lost);
-							localStorage.setItem('$localLost',JSON.stringify(localLost));
-						}else{
-							localLost[mac].push(lost);
-							localStorage.setItem('$localLost',JSON.stringify(localLost));
-						}
-						//遍历当前数组，绘出路线
-						var lostArray = localLost[mac];
-						lostArray.push(lost);
-						if (lostArray.length>1) {
-							for (var i = 0; i < lostArray.length; i++) {
-								lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+						if (lost.status>0) {
+							var mac = lost.mac;
+							if (localLost[mac]==undefined) {
+								localLost[mac] = new Array();
+								localLost[mac].push(lost);
+								localStorage.setItem('$localLost',JSON.stringify(localLost));
+							}else{
+								localLost[mac].push(lost);
+								localStorage.setItem('$localLost',JSON.stringify(localLost));
 							}
-							var polylineObj = new plus.maps.Polyline(lostArray);
-							map.addOverlay(polylineObj);
+							//遍历当前数组，绘出路线
+							var lostArray = localLost[mac];
+							lostArray.push(lost);
+							if (lostArray.length>1) {
+								for (var i = 0; i < lostArray.length; i++) {
+									lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
+								}
+								var polylineObj = new plus.maps.Polyline(lostArray);
+								map.addOverlay(polylineObj);
+							}
+							createLocalPushMsg(lost.address, '获得路线！');
+						}else{
+							createLocalPushMsg(lost.address, '设备运行正常！');
 						}
-						createLocalPushMsg(msg.title, msg.content);
+						
 					}
 			}
 		}
@@ -187,21 +240,33 @@ window.onload = function() {
 		mui.openWindow('html/search.html', 'search.html', {})
 	})
 };
+
 window.addEventListener('satnav', function(event) {
 	//$('.search').val(event.detail.des);
 	//var routeObj = new plus.maps.Route(new plus.maps.Point(116.404, 39.715), new plus.maps.Point(116.347292, 39.968716));
 	//pcenter = new plus.maps.Point(116.404, 39.715);
 	//map.centerAndZoom(pcenter, 12);
-	var dst = new plus.maps.Point(event.detail.longitude, event.detail.latitude);
-	console.log(event.detail.des);
+	
+	
+	//BD-09 to GCJ-02先将百度坐标转成中国坐标
+	var tmp = GPS.bd_decrypt(parseFloat(event.detail.latitude),parseFloat(event.detail.longitude));
+	//GCJ-02 to WGS-84再将中国坐标转成GPS坐标
+	var dstarr = GPS.gcj_decrypt_exact(tmp['lat'],tmp['lon']);
+	
+	var dst = new plus.maps.Point(dstarr['lon'],dstarr['lat']);
+	//console.log(event.detail.des);
+	map.showUserLocation( true );
 	map.getUserLocation(function(state, pos) {
 		if(0 == state) {
 			var src = pos;
 			map.setCenter(pos);
 			plus.maps.openSysMap(dst, event.detail.des, src);
+		}else{
+			mui.toast('获取当前位置失败，请打开GPS至开阔地导航！');
 		}
 	});
 
 	//	map.addOverlay(routeObj);
 	//	$('.search').val(routeObj.distance);
-})
+});
+

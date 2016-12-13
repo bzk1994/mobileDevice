@@ -201,7 +201,10 @@
 					"css/mui.min.css",
 					"js/immersed.js",
 					"js/index.js",
-					"js/jquery-2.2.3.min.js"
+					"js/jquery-2.2.3.min.js",
+					"js/util.js",
+					"images/clear.png",
+					"js/gps.js"
 				],
 				"refer": [
 					"html/list/list_main.html",

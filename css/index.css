@@ -44,3 +44,13 @@ header .mui-icon-map{
 	bottom:0;
 	left:0;
 }
+#clear{
+	display: inline-block;
+	width:40px;
+	height:40px;
+	position: absolute;
+	right:0;
+}
+#clear img{
+	width:40px;
+}

@@ -8,12 +8,20 @@
 				continue;
 			plus.webview.close(wvs[i]);
 		}
+//		if(util.getUser()){
+//			mui.openWindow('index.html','index.html',{
+//				createNew:true
+//			});
+//		}
 		if(util.getUser()){
-			mui.openWindow('index.html','index.html',{
-				createNew:true
-			});
+			var user = JSON.parse(util.getUser());
+			$('#account').val(user.userName);
+			$('#ip').val(user.ip);
 		}
    	    $('.login').on('tap',function(){
+   	    	document.getElementById("ip").blur();
+   	    	document.getElementById("account").blur();
+   	    	document.getElementById("pwd").blur();
    	    	if ($('#ip').val()=='') {
    	    		mui.toast('请输入服务器IP！');
    	    		return false;
@@ -59,6 +67,7 @@
    	    			}
    	    		},
    	    		error:function(xhr,type,errorThrown){
+   	    			plus.nativeUI.closeWaiting();
    	    			mui.toast('网络连接超时！');
    	    		}
    	    	});
