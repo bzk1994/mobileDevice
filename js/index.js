@@ -164,7 +164,6 @@ function plusReady() {
 								var polylineObj = new plus.maps.Polyline(lostArray);
 								map.addOverlay(polylineObj);
 							}
-							createLocalPushMsg(lost.address, '获得路线！');
 						}else{
 							createLocalPushMsg(lost.address, '设备运行正常！');
 						}
