@@ -31,7 +31,6 @@ function plusReady() {
 					timeout:10000,//超时时间设置为10秒；
 					success:function(data){
 						if (data.data.length>0) {
-							console.log(JSON.stringify(data));
 							address = data.data;
 							for(var i = 0; i < address.length; i++) {
 								createMarker(address[i]);
@@ -105,6 +104,10 @@ function plusReady() {
 				break;
 		}
 	}, false);
+	
+	
+	
+	
 	// 监听在线消息事件
 	plus.push.addEventListener("receive", function(msg) {
 		if(msg.aps) { // Apple APNS message
@@ -134,39 +137,11 @@ function plusReady() {
 							}
 						}
 					}else{
-						var localLost;
-						if (localStorage.getItem('$localLost')==null) {
-							localLost = {};
-							localStorage.setItem('$localLost',JSON.stringify(localLost));
-						}else{
-							localLost = JSON.parse(localStorage.getItem('$localLost'));
-						}
-						
-						//将点插入数组
-						var lost = JSON.parse(msg.content);
-						if (lost.status>0) {
-							var mac = lost.mac;
-							if (localLost[mac]==undefined) {
-								localLost[mac] = new Array();
-								localLost[mac].push(lost);
-								localStorage.setItem('$localLost',JSON.stringify(localLost));
-							}else{
-								localLost[mac].push(lost);
-								localStorage.setItem('$localLost',JSON.stringify(localLost));
-							}
-							//遍历当前数组，绘出路线
-							var lostArray = localLost[mac];
-							lostArray.push(lost);
-							if (lostArray.length>1) {
-								for (var i = 0; i < lostArray.length; i++) {
-									lostArray[i] = new plus.maps.Point(lostArray[i].longitude,lostArray[i].latitude);
-								}
-								var polylineObj = new plus.maps.Polyline(lostArray);
-								map.addOverlay(polylineObj);
-							}
-						}else{
-							createLocalPushMsg(lost.address, '设备运行正常！');
-						}
+						//创建或打开数据库
+						websqlOpenDB();
+						//新建或打开表
+						var lost = JSON.parse(msg.content); 
+						websqlCreatTable(lost.mac);
 						
 					}
 			}
@@ -269,3 +244,10 @@ window.addEventListener('satnav', function(event) {
 	//	$('.search').val(routeObj.distance);
 });
 
+			websqlOpenDB();
+			//新建或打开表
+			var lost = {"mac":"666","address":"河南省郑州市二七区民主路6号","longitude":"113.54088013045","latitude":"34.804251254524","status":"1","timestamp":"1481727573"};
+			var tableName = 't'+lost['mac'];
+			websqlCreatTable(tableName);
+			//插入数据
+			websqlInsterDataToTable(tableName,lost['address'],lost['longitude'],lost['latitude'],lost['timestamp']);
