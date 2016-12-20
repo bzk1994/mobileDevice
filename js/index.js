@@ -14,68 +14,50 @@ function plusReady() {
 	//高德地图坐标为(116.3974357341,39.9085574220), 百度地图坐标为(116.3975,39.9074)
 	pcenter = new plus.maps.Point(110.3975, 35.9074);
 
-		map = new plus.maps.Map("map");
-		map.centerAndZoom(pcenter, 6);
-		
-		//获取基站
-		var address;
-		var user = JSON.parse(localStorage.getItem('$guardUser'));
-				mui.ajax(util.url+'/BaseGet',{
-					data:{
-						userName:user.userName,
-   	    				password:user.password,
-   	    				ip:user.ip
-					},	
-					dataType:'json',//服务器返回json格式数据
-					type:'post',//HTTP请求类型
-					timeout:10000,//超时时间设置为10秒；
-					success:function(data){
-						if (data.data.length>0) {
-							address = data.data;
-							for(var i = 0; i < address.length; i++) {
-								createMarker(address[i]);
-							}
-						}
-					},
-					error:function(xhr,type,errorThrown){
-						mui.toast('网络超时！');
-					}
-				});
-			
-		
-		
-		
-		
-		
-		
-		//获取用户位置
-		userLocation();
-		
-		//遍历画出所有路线
-		var tableName = 'allLines';
-		websqlOpenDB();
-		websqlCreatTable(tableName);
-		if (dataBase!=null) {
-			websqlCreatTable(tableName);
-			queryOrgs(draw,tableName);
-		}
-		
-		//路线清除
-		$('#clear').on('tap',function(){
-			plus.nativeUI.confirm('清除所有路线？',function (e) {
-				if(e.index ==1){
-					map.clearOverlays();
-					websqlDeleteAllDataFromTable('allLines');
-					for(var i = 0; i < address.length; i++) {
-						createMarker(address[i]);
-					}
+	map = new plus.maps.Map("map");
+	map.centerAndZoom(pcenter, 6);
+
+	//获取基站
+	var address;
+	var user = JSON.parse(localStorage.getItem('$guardUser'));
+	mui.ajax(util.url + '/BaseGet', {
+		data: {
+			userName: user.userName,
+			password: user.password,
+			ip: user.ip
+		},
+		dataType: 'json', //服务器返回json格式数据
+		type: 'post', //HTTP请求类型
+		timeout: 10000, //超时时间设置为10秒；
+		success: function(data) {
+			if(data.data.length > 0) {
+				address = data.data;
+				for(var i = 0; i < address.length; i++) {
+					createMarker(address[i]);
 				}
-			},'提示',['取消','确认']);
-			
-		});
-		
-		
-		
+			}
+		},
+		error: function(xhr, type, errorThrown) {
+			mui.toast('网络超时！');
+		}
+	});
+
+	//获取用户位置
+	userLocation();
+
+	//路线清除
+	$('#clear').on('tap', function() {
+		plus.nativeUI.confirm('清除所有路线？', function(e) {
+			if(e.index == 1) {
+				map.clearOverlays();
+				for(var i = 0; i < address.length; i++) {
+					createMarker(address[i]);
+				}
+			}
+		}, '提示', ['取消', '确认']);
+
+	});
+
 	// 显示页面并关闭等待框
 	ws.show("pop-in");
 
@@ -86,7 +68,6 @@ function plusReady() {
 			case "LocalMSG":
 				//					var list = plus.webview.getWebviewById('mesList.html');
 				//mui.fire(list, 'mesRefresh');
-				//alert(msg.content);
 				break;
 			default:
 				// 处理其它数据
@@ -96,63 +77,46 @@ function plusReady() {
 				break;
 		}
 	}, false);
-	
-	
-	
-	
+
 	// 监听在线消息事件
 	plus.push.addEventListener("receive", function(msg) {
 		if(msg.aps) { // Apple APNS message
 		} else {
 			if(plus.os.name == "Android") {
-					var receiveData = JSON.parse(msg.content);
-					if (plus.webview.getWebviewById('control.html')) {
-						var control = plus.webview.getWebviewById('control.html');
+				var receiveData = JSON.parse(msg.content);
+				if(plus.webview.getWebviewById('control.html')) {
+					var control = plus.webview.getWebviewById('control.html');
+				}
+				if(receiveData.header != null) {
+					if(receiveData.header == '0000') {
+						//提示断开连接
+						mui.fire(control, 'offLine', {});
 					}
-					if (receiveData.header!=null) {
-						if (receiveData.header == '0000') {
-							//提示断开连接
-							mui.fire(control,'offLine',{});
-						}
-						if (receiveData.header == '9003') {
-							if (receiveData.check=='1') {
-								mui.fire(control,'setOK',{});
-							}else{
-								mui.fire(control,'setNo',{});
-							}
-						}
-						if (receiveData.header == '9004') {
-							if (receiveData.check=='1') {
-								mui.fire(control,'success',{});
-							}else{
-								mui.fire(control,'faile',{});
-							}
-						}
-						if (receiveData.header == '9007') {
-							if (receiveData.check=='1') {
-								mui.fire(control,'checkStatus',{
-									'av':(receiveData.av=='A')?'定位有效':'定位无效',
-									'power':receiveData.power+'%'
-								});
-							}
-						}
-					}else{
-						//alert(msg.content);
-						var lost = receiveData;
-						if (lost.status>0) {
-							websqlOpenDB();
-							//新建或打开表
-							var tableName = 'allLines';
-							websqlCreatTable(tableName);
-							//插入数据
-							websqlInsterDataToTable(tableName,lost['mac'],lost['address'],lost['longitude'],lost['latitude'],lost['timestamp']);
-							//获取表内全部点
-							var dat ;
-							websqlGetAllData(tableName,lost['mac']);
-						}else{
-							createLocalPushMsg(lost.address, '设备运行正常！');
+					if(receiveData.header == '9003') {
+						if(receiveData.check == '1') {
+							mui.fire(control, 'setOK', {});
+						} else {
+							mui.fire(control, 'setNo', {});
 						}
 					}
+					if(receiveData.header == '9004') {
+						if(receiveData.check == '1') {
+							mui.fire(control, 'success', {});
+						} else {
+							mui.fire(control, 'faile', {});
+						}
+					}
+					if(receiveData.header == '9007') {
+						if(receiveData.check == '1') {
+							mui.fire(control, 'checkStatus', {
+								'av': (receiveData.av == 'A') ? '定位有效' : '定位无效',
+								'power': receiveData.power + '%'
+							});
+						}
+					}
+				} else {
+					createLocalPushMsg(lost.address, '设备运行正常！');
+				}
 			}
 		}
 	}, false);
@@ -169,6 +133,43 @@ function plusReady() {
 	}
 	
 	
+	function draw(lostArray,j) {
+		lostArray = lostArray.data;
+		j = j%5;
+		var arr = ['#000000','#003399','#00CC00','#FF9900','CC0000']
+		if(lostArray.length > 1) {
+			for(var i = 0; i < lostArray.length; i++) {
+				lostArray[i] = new plus.maps.Point(lostArray[i].longitude, lostArray[i].latitude);
+			}
+			var polylineObj = new plus.maps.Polyline(lostArray);
+			//polylineObj.setStorkeColor("#00CC00");
+			map.addOverlay(polylineObj);
+		}
+	}
+	function getRoute() {
+		mui.ajax(util.url + '/AllRoutes', {
+			data: {
+				uid: user.userName
+			},
+			dataType: 'json', //服务器返回json格式数据
+			type: 'post', //HTTP请求类型
+			timeout: 10000, //超时时间设置为10秒；
+			success: function(data) {
+				if (data.error_code==0) {
+					console.log(JSON.stringify(data));
+					var j = 0;
+					for (var i in data.data) {
+						draw(data.data[i],j);
+						j++;
+					}
+				}
+			},
+			error: function(xhr, type, errorThrown) {
+
+			}
+		});
+	}
+	setInterval(function(){getRoute()},8000);
 }
 if(window.plus) {
 	plusReady();
@@ -225,26 +226,21 @@ window.onload = function() {
 };
 
 window.addEventListener('satnav', function(event) {
-	//$('.search').val(event.detail.des);
-	//var routeObj = new plus.maps.Route(new plus.maps.Point(116.404, 39.715), new plus.maps.Point(116.347292, 39.968716));
-	//pcenter = new plus.maps.Point(116.404, 39.715);
-	//map.centerAndZoom(pcenter, 12);
-	
-	
+
 	//BD-09 to GCJ-02先将百度坐标转成中国坐标
-	var tmp = GPS.bd_decrypt(parseFloat(event.detail.latitude),parseFloat(event.detail.longitude));
+	var tmp = GPS.bd_decrypt(parseFloat(event.detail.latitude), parseFloat(event.detail.longitude));
 	//GCJ-02 to WGS-84再将中国坐标转成GPS坐标
-	var dstarr = GPS.gcj_decrypt_exact(tmp['lat'],tmp['lon']);
-	
-	var dst = new plus.maps.Point(dstarr['lon'],dstarr['lat']);
+	var dstarr = GPS.gcj_decrypt_exact(tmp['lat'], tmp['lon']);
+
+	var dst = new plus.maps.Point(dstarr['lon'], dstarr['lat']);
 	//console.log(event.detail.des);
-	map.showUserLocation( true );
+	map.showUserLocation(true);
 	map.getUserLocation(function(state, pos) {
 		if(0 == state) {
 			var src = pos;
 			map.setCenter(pos);
 			plus.maps.openSysMap(dst, event.detail.des, src);
-		}else{
+		} else {
 			mui.toast('获取当前位置失败，请打开GPS至开阔地导航！');
 		}
 	});
@@ -252,16 +248,3 @@ window.addEventListener('satnav', function(event) {
 	//	map.addOverlay(routeObj);
 	//	$('.search').val(routeObj.distance);
 });
-
-//			websqlOpenDB();
-////			//新建或打开表
-//			var lost = {"mac":"666","address":"河南省郑州市二七区民主路6号","longitude":"113.54088013045","latitude":"47.804251254524","status":"1","timestamp":"1481727573"};
-////			var tableName = 't'+lost['mac'];
-//			websqlCreatTable('allLines');
-////			
-////			//插入数据
-//			websqlInsterDataToTable('allLines',lost['mac'],lost['address'],lost['longitude'],lost['latitude'],lost['timestamp']);
-//////			//获取表内全部点
-//////			var dat ; 
-//			websqlGetAllData('allLines'); 
-//			
