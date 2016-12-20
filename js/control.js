@@ -10,7 +10,9 @@ window.onload = function() {
 		var minute = 0;
 		var second = 0;
 		
+		var flag1007 = false;
 		
+		var timeout;
 		//获取当前反馈时间
 		var user = JSON.parse(util.getUser());
 		plus.nativeUI.showWaiting();
@@ -154,34 +156,16 @@ window.onload = function() {
 		});
 		//1007
 		$('#query').on('tap', function() {
-			console.log(util.getUser());
-			console.log(mac);
+			flag1007 = false;
 			plus.nativeUI.showWaiting();
-			mui.ajax(util.url + '/SetTime',{
-				data:{
-					userName: user.userName,
-					password: user.password,
-					ip: user.ip,
-					mac: mac
-				},
-				dataType:'json',//服务器返回json格式数据
-				type:'post',//HTTP请求类型
-				timeout:10000,//超时时间设置为10秒；
-				success:function(data){
+			ToggleConnectionClicked('1007');
+			timeout = setTimeout(function(){
+				if (!flag1007) {
+					location.reload(true);
 					plus.nativeUI.closeWaiting();
-					if(data.error_code == 0) {
-						if (data.connection==1) {
-							mui.toast('仪器连接正常！');
-						}else if(data.connection==0){
-							mui.toast('仪器连接中断！');
-						}
-					}
-				},
-				error:function(xhr,type,errorThrown){
-					plus.nativeUI.closeWaiting();
-					mui.toast('网络超时');
+					mui.toast('数据反馈超时');
 				}
-			});
+			},20000);
 		});
 		
 		
@@ -286,7 +270,14 @@ window.onload = function() {
 			plus.nativeUI.closeWaiting();
 			mui.toast('操作失败');
 		});
-		
+		window.addEventListener('checkStatus',function(e){
+			flag1007 = true;
+			clearTimeout(timeout);
+			plus.nativeUI.closeWaiting();
+			plus.nativeUI.alert(e.detail.av+' 剩余电量'+e.detail.power,function(){
+				location.reload(true);
+			},'连接正常','确定');
+		});
 		
 	})
 }

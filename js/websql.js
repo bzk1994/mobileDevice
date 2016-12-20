@@ -3,7 +3,7 @@
 */
 var dbname='websql';/*数据库名*/
 var version = '1.0'; /*数据库版本*/
-var dbdesc = 'websql练习'; /*数据库描述*/
+var dbdesc = 'websql'; /*数据库描述*/
 var dbsize = 20*1024*1024; /*数据库大小*/
 var dataBase = null; /*暂存数据库对象*/
 /*数据库中的表单名*/
@@ -17,11 +17,34 @@ function websqlOpenDB(){
     /*数据库有就打开 没有就创建*/
     dataBase = window.openDatabase(dbname, version, dbdesc, dbsize,function() {});
     if (dataBase) {
-        alert("数据库创建/打开成功!");
+        console.log("数据库创建/打开成功!");
     } else{
         alert("数据库创建/打开失败！");
     }
     return dataBase;
+}
+
+//查询有所有mac
+function queryOrgs(callback,tableName) {  
+    dataBase.transaction(function(tx) {  
+        tx.executeSql("select distinct mac from "+tableName, [], function(tx, result) {            
+            var arrayJSON = new Array();  
+            for (var i = 0; i < result.rows.length; i++) {  
+                var mac = result.rows.item(i).MAC;  
+                arrayJSON[i]=mac;    
+            } 
+            callback(arrayJSON);  
+        }, function(tx, error) {  
+            /* alert('查询失败: ' + error.message); */  
+        });  
+    });  
+}
+//遍历已有mac,画图
+function draw(arr){
+	for (var i = 0; i < arr.length; i++) {
+		websqlGetAData('allLines',arr[i]);
+	}
+	
 }
 /**
  * 新建数据库里面的表单
@@ -29,12 +52,12 @@ function websqlOpenDB(){
  */
 function websqlCreatTable(tableName){
 //  chinaAreaOpenDB();
-    var creatTableSQL = 'CREATE TABLE IF  NOT EXISTS '+ tableName + ' (rowid INTEGER PRIMARY KEY AUTOINCREMENT, ADDRESS text,LON text,LAT text,TIME INT)';
+    var creatTableSQL = 'CREATE TABLE IF  NOT EXISTS '+ tableName + ' (rowid INTEGER PRIMARY KEY AUTOINCREMENT, MAC text, ADDRESS text,LON text,LAT text,TIME int)';
     dataBase.transaction(function (ctx,result) {
         ctx.executeSql(creatTableSQL,[],function(ctx,result){
-           alert("表创建成功 " + tableName);
+           console.log("表创建成功 " + tableName);
         },function(tx, error){ 
-           alert('创建表失败:' + tableName + error.message);
+           mui.toast('创建表失败:' + tableName + error.message);
         });
     });
 }
@@ -46,14 +69,14 @@ function websqlCreatTable(tableName){
  * @param HEIGHT:身高
  * @param WEIGTH:体重
  */
-function websqlInsterDataToTable(tableName,ADDRESS,LON,LAT,TIME){
-    var insterTableSQL = 'INSERT INTO ' + tableName + ' (ADDRESS,LON,LAT,TIME) VALUES (?,?,?,?)';
+function websqlInsterDataToTable(tableName,MAC,ADDRESS,LON,LAT,TIME){
+    var insterTableSQL = 'INSERT INTO ' + tableName + ' (MAC,ADDRESS,LON,LAT,TIME) VALUES (?,?,?,?,?)';
     dataBase.transaction(function (ctx) {
-        ctx.executeSql(insterTableSQL,[ADDRESS,LON,LAT,TIME],function (ctx,result){
+        ctx.executeSql(insterTableSQL,[MAC,ADDRESS,LON,LAT,TIME],function (ctx,result){
             console.log("插入" + tableName  + ADDRESS + "成功");
         },
         function (tx, error) {
-            alert('插入失败: ' + error.message);
+            mui.alert('插入失败: ' + error.message);
         });
     });
 }
@@ -62,42 +85,71 @@ function websqlInsterDataToTable(tableName,ADDRESS,LON,LAT,TIME){
  * @param tableName:表单名
  * 返回数据集合
  */
-function websqlGetAllData(tableName){   
-    var selectALLSQL = 'SELECT * FROM ' + tableName;
+function websqlGetAllData(tableName,mac){   
+    var selectALLSQL = "SELECT * FROM " + tableName +" WHERE MAC = ?";
     dataBase.transaction(function (ctx) {
-        ctx.executeSql(selectALLSQL,[],function (ctx,result){
-            alert('查询成功: ' + tableName + result.rows.length);
+        ctx.executeSql(selectALLSQL,[mac],function (ctx,result){
+            console.log('查询成功: ' + tableName + result.rows.length);
             var len = result.rows.length;
+            console.log(JSON.stringify(result.rows)); 
+            var lostArray = [];
             for(var i = 0;i < len;i++) {
-                console.log("NAME = "  + result.rows.item(i).NAME);
-                console.log("AGE = "  + result.rows.item(i).AGE);
-                console.log("HEIGHT = "  + result.rows.item(i).HEIGHT);
-                console.log("WEIGTH = "  + result.rows.item(i).WEIGTH);
-                console.log("-------- 我是分割线 -------");
+//              console.log("LON = "  + result.rows.item(i).LON);
+//              console.log("LAT = "  + result.rows.item(i).LAT);
+                lostArray.push(new plus.maps.Point(result.rows.item(i).LON,result.rows.item(i).LAT));
+                var polylineObj = new plus.maps.Polyline(lostArray);
+				map.addOverlay(polylineObj);
             }
         },
         function (tx, error) {
-            alert('查询失败: ' + error.message);
+            mui.toast('查询失败: ' + error.message);
         });
     });
 }
+
+//獲取所有表并劃線
+function websqlGetAllTable(){   
+    var selectALLSQL = "SELECT name FROM [sysobjects]"; 
+    dataBase.transaction(function (ctx) {
+        ctx.executeSql(selectALLSQL,[],function (ctx,result){
+            console.log('查询成功: ' + tableName + result.rows.length);
+            var len = result.rows.length;
+            console.log(JSON.stringify(result.rows)); 
+            var lostArray = [];
+            for(var i = 0;i < len;i++) {
+//             
+            }
+        },
+        function (tx, error) {
+            mui.alert('查询失败: ' + error.message);
+        });
+    });
+}
+
+
+
+
+
+
 /**
- * 获取数据库一个表单里面的部分数据
+ * 获取mac数据
  * @param tableName:表单名
  * @param name:姓名
  */
-function websqlGetAData(tableName,name){    
-    var selectSQL = 'SELECT * FROM ' + tableName + ' WHERE NAME = ?'
+function websqlGetAData(tableName,mac){    
+    var selectSQL = "SELECT *  FROM " + tableName + " WHERE MAC = ? ORDER BY TIME DESC";
     dataBase.transaction(function (ctx) {
-        ctx.executeSql(selectSQL,[name],function (ctx,result){
-            alert('查询成功: ' + tableName + result.rows.length);
+        ctx.executeSql(selectSQL,[mac],function (ctx,result){
+            console.log('mac查询成功: ' + tableName + result.rows.length);
+            console.log(JSON.stringify(result.rows));
             var len = result.rows.length;
+            var lost = [];
             for(var i = 0;i < len;i++) {
-                console.log("NAME = "  + result.rows.item(i).NAME);
-                console.log("AGE = "  + result.rows.item(i).AGE);
-                console.log("HEIGHT = "  + result.rows.item(i).HEIGHT);
-                console.log("WEIGTH = "  + result.rows.item(i).WEIGTH);
+                //console.log("mac = "  + result.rows.item(i).MAC);
+                lost[i] = new plus.maps.Point(result.rows.item(i).LON,result.rows.item(i).LAT);
             }
+            var polylineObj = new plus.maps.Polyline(lost);
+			map.addOverlay(polylineObj);
         },
         function (tx, error) {
             alert('查询失败: ' + error.message);
@@ -113,7 +165,7 @@ function websqlDeleteAllDataFromTable(tableName){
     localStorage.removeItem(tableName);
     dataBase.transaction(function (ctx,result) {
         ctx.executeSql(deleteTableSQL,[],function(ctx,result){
-            alert("删除表成功 " + tableName);
+            console.log("删除表成功 " + tableName);
         },function(tx, error){ 
             alert('删除表失败:' + tableName + error.message);
         });
@@ -129,7 +181,7 @@ function websqlDeleteADataFromTable(tableName,name){
     localStorage.removeItem(tableName);
     dataBase.transaction(function (ctx,result) {
         ctx.executeSql(deleteDataSQL,[name],function(ctx,result){
-            alert("删除成功 " + tableName + name);
+            console.log("删除成功 " + tableName + name);
         },function(tx, error){ 
             alert('删除失败:' + tableName  + name + error.message);
         });

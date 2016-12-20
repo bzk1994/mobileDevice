@@ -59,9 +59,14 @@
    	    				localStorage.setItem('$guardUser',JSON.stringify(user));
    	    				localStorage.setItem('$guardAddress',JSON.stringify(data));
    	    				console.log(util.getUser());
-   	    				mui.openWindow('index.html','index.html',{
+   	    				document.getElementById("ip").blur();
+   	    				document.getElementById("account").blur();
+   	    				document.getElementById("pwd").blur();
+   	    				setTimeout(function(){
+   	    					mui.openWindow('index.html','index.html',{
    	    					
-   	    				});
+   	    					});
+   	    				},100);
    	    			} else{
    	    				mui.toast('账号或密码错误');
    	    			}

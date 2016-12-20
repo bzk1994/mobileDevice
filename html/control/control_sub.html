@@ -12,6 +12,10 @@
 			li{
 				height:60px;
 				line-height: 60px;
+				word-wrap: break-word;
+			}
+			.mui-table-view-chevron .mui-table-view-cell{
+				padding-right:0!important;
 			}
 		</style>
 	</head>
@@ -22,23 +26,13 @@
 			<div class="mui-scroll">
 				<!--数据列表-->
 				<ul id="OA_task_2" class="mui-table-view mui-table-view-chevron">
-					
 				</ul>
 			</div>
 		</div> 
 		<script type="text/x-jquery-tmpl" id="tmpl">
 			{{each data}}
 				<li class="mui-table-view-cell dh" longitude="{{= $value.longitude}}" latitude="{{= $value.latitude}}" des="{{= $value.address}}" liStatus="{{= $value.status}}" mac="{{= $value.mac}}">
-					<!--<div class="mui-slider-right mui-disabled">
-						<a class="mui-btn mui-btn-grey dh" longitude="{{= $value.longitude}}" latitude="{{= $value.latitude}}" des="{{= $value.address}}" ><img src="../../images/dh.png"/></a>
-						<a class="mui-btn mui-btn-yellow find" longitude="{{= $value.longitude}}" latitude="{{= $value.latitude}}"><img src="../../images/find.png"/></a>
-					</div>
-					-->
-					<div class="mui-slider-handle">
-						<div class="mui-table-cell">
-							{{= $value.address}}
-						</div>
-					</div>
+					{{= $value.address}}
 				</li>	
 			{{/each}}			
 		</script>
@@ -73,6 +67,7 @@
 					type:'post',//HTTP请求类型
 					timeout:10000,//超时时间设置为10秒；
 					success:function(data){
+						console.log(JSON.stringify(data));
 						if (data.data.length>0) {
 							$('#pullrefresh ul').html('');
 							$('#tmpl').tmpl(data).appendTo('#OA_task_2');

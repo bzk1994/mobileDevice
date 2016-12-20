@@ -38,7 +38,6 @@ function plusReady() {
 						}
 					},
 					error:function(xhr,type,errorThrown){
-						mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
 						mui.toast('网络超时！');
 					}
 				});
@@ -49,23 +48,16 @@ function plusReady() {
 		
 		
 		
-		//localStorage.setItem('$localLost','{"bzk":[{"mac":"bzk","longitude":"114.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"47.22"},{"mac":"bzk","longitude":"123.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"45.22"},{"mac":"bzk","longitude":"117.23","latitude":"45.22"},{"mac":"bzk","longitude":"114.23","latitude":"49.22"},{"mac":"bzk","longitude":"134.23","latitude":"49.22"},{"mac":"bzk","longitude":"104.23","latitude":"39.22"},{"mac":"bzk","longitude":"110.23","latitude":"49.22"}]}');
 		//获取用户位置
 		userLocation();
 		
 		//遍历画出所有路线
-		if (localStorage.getItem('$localLost')!=null) {
-			var localLost = JSON.parse(localStorage.getItem('$localLost'));
-			for(var i in localLost){
-				var lostArray = localLost[i];
-				if (lostArray.length>1) {
-					for (var j = 0; j < lostArray.length; j++) {
-						lostArray[j] = new plus.maps.Point(lostArray[j].longitude,lostArray[j].latitude);
-					}
-					var polylineObj = new plus.maps.Polyline(lostArray);
-					map.addOverlay(polylineObj);
-				}
-			}
+		var tableName = 'allLines';
+		websqlOpenDB();
+		websqlCreatTable(tableName);
+		if (dataBase!=null) {
+			websqlCreatTable(tableName);
+			queryOrgs(draw,tableName);
 		}
 		
 		//路线清除
@@ -73,7 +65,7 @@ function plusReady() {
 			plus.nativeUI.confirm('清除所有路线？',function (e) {
 				if(e.index ==1){
 					map.clearOverlays();
-					localStorage.removeItem('$localLost');
+					websqlDeleteAllDataFromTable('allLines');
 					for(var i = 0; i < address.length; i++) {
 						createMarker(address[i]);
 					}
@@ -136,13 +128,30 @@ function plusReady() {
 								mui.fire(control,'faile',{});
 							}
 						}
+						if (receiveData.header == '9007') {
+							if (receiveData.check=='1') {
+								mui.fire(control,'checkStatus',{
+									'av':(receiveData.av=='A')?'定位有效':'定位无效',
+									'power':receiveData.power+'%'
+								});
+							}
+						}
 					}else{
-						//创建或打开数据库
-						websqlOpenDB();
-						//新建或打开表
-						var lost = JSON.parse(msg.content); 
-						websqlCreatTable(lost.mac);
-						
+						//alert(msg.content);
+						var lost = receiveData;
+						if (lost.status>0) {
+							websqlOpenDB();
+							//新建或打开表
+							var tableName = 'allLines';
+							websqlCreatTable(tableName);
+							//插入数据
+							websqlInsterDataToTable(tableName,lost['mac'],lost['address'],lost['longitude'],lost['latitude'],lost['timestamp']);
+							//获取表内全部点
+							var dat ;
+							websqlGetAllData(tableName,lost['mac']);
+						}else{
+							createLocalPushMsg(lost.address, '设备运行正常！');
+						}
 					}
 			}
 		}
@@ -244,10 +253,15 @@ window.addEventListener('satnav', function(event) {
 	//	$('.search').val(routeObj.distance);
 });
 
-			websqlOpenDB();
-			//新建或打开表
-			var lost = {"mac":"666","address":"河南省郑州市二七区民主路6号","longitude":"113.54088013045","latitude":"34.804251254524","status":"1","timestamp":"1481727573"};
-			var tableName = 't'+lost['mac'];
-			websqlCreatTable(tableName);
-			//插入数据
-			websqlInsterDataToTable(tableName,lost['address'],lost['longitude'],lost['latitude'],lost['timestamp']);
+//			websqlOpenDB();
+////			//新建或打开表
+//			var lost = {"mac":"666","address":"河南省郑州市二七区民主路6号","longitude":"113.54088013045","latitude":"47.804251254524","status":"1","timestamp":"1481727573"};
+////			var tableName = 't'+lost['mac'];
+//			websqlCreatTable('allLines');
+////			
+////			//插入数据
+//			websqlInsterDataToTable('allLines',lost['mac'],lost['address'],lost['longitude'],lost['latitude'],lost['timestamp']);
+//////			//获取表内全部点
+//////			var dat ; 
+//			websqlGetAllData('allLines'); 
+//			
