@@ -110,7 +110,7 @@
 		},
 		"runmode": "liberate",/*应用的首次启动运行模式，可取liberate或normal，liberate模式在第一次启动时将解压应用资源（Android平台File API才可正常访问_www目录）*/
 		"signature": "Sk9JTiBVUyBtYWlsdG86aHIyMDEzQGRjbG91ZC5pbw==",/*可选，保留给应用签名，暂不使用*/
-		"distribute": {"plugins":{"push":{"igexin":{"appid":"q09ixI2wOfAnqTub2e4WX","appkey":"cU1gj4vCK17wXF2jtONgX1","appsecret":"fADKGTSLX5A4zDVGpQwhL4"}},"maps":{"baidu":{"appkey_ios":"uT9F4Vz7q3GHifYEGsmIoQDpEcZacTHF","appkey_android":"dvQc73dty8A9yuZ3OaRvsZKVzzPzdBpE","appkey":"","description":""}}},
+		"distribute": {"plugins":{"push":{"igexin":{"appid":"q09ixI2wOfAnqTub2e4WX","appkey":"cU1gj4vCK17wXF2jtONgX1","appsecret":"fADKGTSLX5A4zDVGpQwhL4"}},"maps":{"baidu":{"appkey_ios":"a79uZOGrOwAswBoX1zqq8aZrSBZaExjL","appkey_android":"dvQc73dty8A9yuZ3OaRvsZKVzzPzdBpE","appkey":"","description":""}}},
 			"apple": {
 				"appid": "",/*iOS应用标识，苹果开发网站申请的appid，如io.dcloud.HelloH5*/
 				"mobileprovision": "",/*iOS应用打包配置文件*/
@@ -204,7 +204,8 @@
 					"js/jquery-2.2.3.min.js",
 					"js/util.js",
 					"images/clear.png",
-					"js/gps.js"
+					"js/gps.js",
+					"js/websql.js"
 				],
 				"refer": [
 					"html/list/list_main.html",

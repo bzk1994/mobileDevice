@@ -20,28 +20,31 @@ function plusReady() {
 	//获取基站
 	var address;
 	var user = JSON.parse(localStorage.getItem('$guardUser'));
-	mui.ajax(util.url + '/BaseGet', {
-		data: {
-			userName: user.userName,
-			password: user.password,
-			ip: user.ip
-		},
-		dataType: 'json', //服务器返回json格式数据
-		type: 'post', //HTTP请求类型
-		timeout: 10000, //超时时间设置为10秒；
-		success: function(data) {
-			if(data.data.length > 0) {
-				address = data.data;
-				for(var i = 0; i < address.length; i++) {
-					createMarker(address[i]);
-				}
-			}
-		},
-		error: function(xhr, type, errorThrown) {
-			mui.toast('网络超时！');
-		}
-	});
 
+	function getBase() {
+		mui.ajax(util.url + '/BaseGet', {
+			data: {
+				userName: user.userName,
+				password: user.password,
+				ip: user.ip
+			},
+			dataType: 'json', //服务器返回json格式数据
+			type: 'post', //HTTP请求类型
+			timeout: 10000, //超时时间设置为10秒；
+			success: function(data) {
+				if(data.data.length > 0) {
+					address = data.data;
+					for(var i = 0; i < address.length; i++) {
+						createMarker(address[i]);
+					}
+				}
+			},
+			error: function(xhr, type, errorThrown) {
+				mui.toast('网络超时！');
+			}
+		});
+	}
+	getBase();
 	//获取用户位置
 	userLocation();
 
@@ -50,6 +53,10 @@ function plusReady() {
 		plus.nativeUI.confirm('清除所有路线？', function(e) {
 			if(e.index == 1) {
 				map.clearOverlays();
+				var time = new Date();
+				//alert(time.format("yyyy-MM-dd hh:mm:ss"));
+				localStorage.setItem('sTime',time.format("yyyy-MM-dd hh:mm:ss"));
+				getBase();
 				for(var i = 0; i < address.length; i++) {
 					createMarker(address[i]);
 				}
@@ -81,8 +88,11 @@ function plusReady() {
 	// 监听在线消息事件
 	plus.push.addEventListener("receive", function(msg) {
 		if(msg.aps) { // Apple APNS message
+			alert(JSON.stringify(msg.aps));
+			alert(msg.content);
 		} else {
-			if(plus.os.name == "Android") {
+//			if(plus.os.name == "Android") {
+				alert('1'+JSON.stringify(msg));
 				var receiveData = JSON.parse(msg.content);
 				if(plus.webview.getWebviewById('control.html')) {
 					var control = plus.webview.getWebviewById('control.html');
@@ -115,9 +125,9 @@ function plusReady() {
 						}
 					}
 				} else {
-					createLocalPushMsg(lost.address, '设备运行正常！');
+					createLocalPushMsg(123, '设备运行正常！');
 				}
-			}
+//			}
 		}
 	}, false);
 
@@ -131,35 +141,48 @@ function plusReady() {
 			mui.toast('*如果无法创建消息，请到"设置"->"通知"中配置应用在通知中心显示!');
 		}
 	}
-	
-	
-	function draw(lostArray,j) {
+
+	function draw(lostArray, j) {
 		lostArray = lostArray.data;
-		j = j%5;
-		var arr = ['#000000','#003399','#00CC00','#FF9900','CC0000']
+		j = j % 5;
+		var arr = ['#000000', '#003399', '#00CC00', '#B400FF', '#00FFE7']
 		if(lostArray.length > 1) {
 			for(var i = 0; i < lostArray.length; i++) {
 				lostArray[i] = new plus.maps.Point(lostArray[i].longitude, lostArray[i].latitude);
 			}
 			var polylineObj = new plus.maps.Polyline(lostArray);
-			//polylineObj.setStorkeColor("#00CC00");
+			 
+			polylineObj.setStrokeColor(arr[j]);
 			map.addOverlay(polylineObj);
 		}
 	}
+	if(localStorage.getItem('sTime')==null){
+		var time = new Date();
+		time.setHours(0,0,0,0);
+		localStorage.setItem('sTime',time.format("yyyy-MM-dd hh:mm:ss"));
+	}
+	
 	function getRoute() {
 		mui.ajax(util.url + '/AllRoutes', {
 			data: {
-				uid: user.userName
+				uid: user.userName,
+				sTime:localStorage.getItem('sTime')
 			},
 			dataType: 'json', //服务器返回json格式数据
 			type: 'post', //HTTP请求类型
 			timeout: 10000, //超时时间设置为10秒；
 			success: function(data) {
-				if (data.error_code==0) {
+				if(data.error_code == 0) {
 					console.log(JSON.stringify(data));
+					//getBase();
+					map.clearOverlays();
+					var base = data.lonlatdata;
+					for(var i = 0; i < base.length; i++) {
+						createMarker(base[i]);
+					}
 					var j = 0;
-					for (var i in data.data) {
-						draw(data.data[i],j);
+					for(var i in data.data) {
+						draw(data.data[i], j);
 						j++;
 					}
 				}
@@ -169,7 +192,9 @@ function plusReady() {
 			}
 		});
 	}
-	setInterval(function(){getRoute()},8000);
+	setInterval(function() {
+		getRoute();
+	}, 8000);
 }
 if(window.plus) {
 	plusReady();
@@ -205,7 +230,29 @@ function resetMap() {
 	//map.centerAndZoom(pcenter,12);
 	map.reset();
 }
+//时间格式化函数
+Date.prototype.format = function(format) {
+	var o = {
+		"M+": this.getMonth() + 1, //month 
+		"d+": this.getDate(), //day 
+		"h+": this.getHours(), //hour 
+		"m+": this.getMinutes(), //minute 
+		"s+": this.getSeconds(), //second 
+		"q+": Math.floor((this.getMonth() + 3) / 3), //quarter 
+		"S": this.getMilliseconds() //millisecond 
+	}
 
+	if(/(y+)/.test(format)) {
+		format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+	}
+
+	for(var k in o) {
+		if(new RegExp("(" + k + ")").test(format)) {
+			format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));
+		}
+	}
+	return format;
+}
 window.onload = function() {
 	var mine = document.getElementById("mine");
 	var list = document.getElementById("list");
