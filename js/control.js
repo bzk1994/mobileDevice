@@ -11,7 +11,8 @@ window.onload = function() {
 		var second = 0;
 		
 		var flag1007 = false;
-		
+		var flag1004 = false;
+		var flag1003 = false;
 		var timeout;
 		//获取当前反馈时间
 		var user = JSON.parse(util.getUser());
@@ -140,19 +141,43 @@ window.onload = function() {
 		
 		//1003
 		$('#btn').on('tap',function(){
+			flag1003 = false;
 			plus.nativeUI.showWaiting();
 			ToggleConnectionClicked('1003');
+			timeout = setTimeout(function(){
+				if (!flag1003) {
+					location.reload(true);
+					plus.nativeUI.closeWaiting();
+					mui.toast('数据反馈超时');
+				}
+			},20000);
 		});
 		//1004
 		$('#pause').on('tap',function(){
+			flag1004 = false;
 			pointStatus = '2';
 			plus.nativeUI.showWaiting();
 			ToggleConnectionClicked('1004');
+			timeout = setTimeout(function(){
+				if (!flag1004) {
+					location.reload(true);
+					plus.nativeUI.closeWaiting();
+					mui.toast('数据反馈超时');
+				}
+			},20000);
 		});
 		$('#reset').on('tap',function(){
+			flag1004 = false;
 			pointStatus = '1';
 			plus.nativeUI.showWaiting();
 			ToggleConnectionClicked('1004');
+			timeout = setTimeout(function(){
+				if (!flag1004) {
+					location.reload(true);
+					plus.nativeUI.closeWaiting();
+					mui.toast('数据反馈超时');
+				}
+			},20000);
 		});
 		//1007
 		$('#query').on('tap', function() {
@@ -254,21 +279,27 @@ window.onload = function() {
 			mui.back();
 		});
 		window.addEventListener('setOK',function(){
+			flag1003 = true;
 			plus.nativeUI.closeWaiting();
 			mui.toast('反馈时间设置成功');
 		});
 		window.addEventListener('setNo',function(){
+			flag1003 = true;
 			plus.nativeUI.closeWaiting();
 			mui.toast('反馈时间设置失败');
 		});
 		
 		window.addEventListener('success',function(){
+			flag1004 = true;
 			plus.nativeUI.closeWaiting();
 			mui.toast('操作成功');
+			location.reload(true);
 		});
 		window.addEventListener('faile',function(){
+			flag1004 = true;
 			plus.nativeUI.closeWaiting();
 			mui.toast('操作失败');
+			location.reload(true);
 		});
 		window.addEventListener('checkStatus',function(e){
 			flag1007 = true;

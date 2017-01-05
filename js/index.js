@@ -88,11 +88,11 @@ function plusReady() {
 	// 监听在线消息事件
 	plus.push.addEventListener("receive", function(msg) {
 		if(msg.aps) { // Apple APNS message
-			alert(JSON.stringify(msg.aps));
-			alert(msg.content);
+//			alert(JSON.stringify(msg.aps));
+//			alert(msg.content);
 		} else {
 //			if(plus.os.name == "Android") {
-				alert('1'+JSON.stringify(msg));
+				//alert('1'+JSON.stringify(msg));
 				var receiveData = JSON.parse(msg.content);
 				if(plus.webview.getWebviewById('control.html')) {
 					var control = plus.webview.getWebviewById('control.html');
@@ -118,15 +118,30 @@ function plusReady() {
 					}
 					if(receiveData.header == '9007') {
 						if(receiveData.check == '1') {
+							var av;
+							switch (receiveData.av){
+								case "A":
+									av = "定位有效";
+									break;
+								case "V":
+									av = "定位无效";
+									break;
+								case "J":
+									av = "基站定位";
+									break;
+								default:
+									break;
+							}
 							mui.fire(control, 'checkStatus', {
-								'av': (receiveData.av == 'A') ? '定位有效' : '定位无效',
+								'av': av,
 								'power': receiveData.power + '%'
 							});
 						}
 					}
-				} else {
-					createLocalPushMsg(123, '设备运行正常！');
-				}
+				} 
+//				else {
+//					createLocalPushMsg(123, '设备运行正常！');
+//				}
 //			}
 		}
 	}, false);
@@ -219,7 +234,7 @@ function userLocation() {
 function createMarker(data) {
 	//高德地图坐标为(116.3406445236,39.9630878208), 百度地图坐标为(116.347292,39.968716
 	var marker = new plus.maps.Marker(new plus.maps.Point(data.longitude, data.latitude));
-	marker.setIcon("images/dw.png");
+	marker.setIcon("images/dw2.png");
 	//marker.setLabel("基站");
 	var bubble = new plus.maps.Bubble(data.address);
 	marker.setBubble(bubble);
