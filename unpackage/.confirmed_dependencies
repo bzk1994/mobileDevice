@@ -8,7 +8,11 @@
       "css/mui.min.css",
       "js/immersed.js",
       "js/index.js",
-      "js/jquery-2.2.3.min.js"
+      "js/jquery-2.2.3.min.js",
+      "js/util.js",
+      "images/clear.png",
+      "js/gps.js",
+      "js/websql.js"
     ],
     "refer": [
       "html/list/list_main.html",
@@ -104,6 +108,9 @@
       "js/util.js",
       "js/jquery-2.2.3.min.js",
       "images/dh.png"
+    ],
+    "refer": [
+      "html/control/control.html"
     ]
   },
   "html/control/list_main.html": {
@@ -163,7 +170,8 @@
       "css/mui.css"
     ],
     "refer": [
-      "html/control/control_sub.html"
+      "html/control/control_sub.html",
+      "html/search.html"
     ]
   }
 }

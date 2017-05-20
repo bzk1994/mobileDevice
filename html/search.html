@@ -10,89 +10,142 @@
 
 	<body>
 		<header class="mui-bar mui-bar-nav">
-		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-		    <h1 class="mui-title"><input type="text" id="search" placeholder="搜索基站" /></h1>
-		    <span class="mui-icon mui-icon-search mui-pull-right" id="btn"></span>
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title"><input type="text" id="search" placeholder="搜索基站" /></h1>
+			<span class="mui-icon mui-icon-search mui-pull-right" id="btn"></span>
 		</header>
 		<div class="mui-content">
-		    <ul class="mui-table-view" id="OA_task_2">
-		    </ul>
+			<ul class="mui-table-view" id="OA_task_2">
+			</ul>
 		</div>
 		<script type="text/x-jquery-tmpl" id="tmpl">
 			{{each data}}
-				<li class="mui-table-view-cell" longitude="{{= $value.longitude}}" latitude="{{= $value.latitude}}" des="{{= $value.address}}">
-					<div class="mui-slider-handle">
-						<div class="mui-table-cell">
-							{{= $value.address}}
-						</div>
+			<li class="mui-table-view-cell" longitude="{{= $value.longitude}}" latitude="{{= $value.latitude}}" des="{{= $value.address}}" liStatus="{{= $value.status}}" mac="{{= $value.mac}}">
+				<div class="mui-slider-handle">
+					<div class="mui-table-cell">
+						{{= $value.address}}
 					</div>
-				</li>	
-			{{/each}}			
+				</div>
+			</li>
+			{{/each}}
 		</script>
 		<script src="../js/mui.min.js"></script>
 		<script src="../js/util.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/jquery-2.2.3.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../js/jquery.tmpl.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
-			mui.init({
-				beforeback:function(){
-					if (satnav) {
-						var index = plus.webview.getWebviewById('index.html');
-						mui.fire(index,'satnav',address);
-					}
-					return true;
-				}
-			});
-			var satnav = false;
-			document.getElementById("search").focus();
-			function pulldownRefresh() {
-				var user = JSON.parse(localStorage.getItem('$guardUser'));
-				plus.nativeUI.showWaiting();
-				mui.ajax(util.url+'/BaseList',{
-					data:{
-						userName:user.userName,
-   	    				password:user.password,
-   	    				ip:user.ip,
-   	    				keyWord:$('#search').val()
-					},	
-					dataType:'json',//服务器返回json格式数据
-					type:'post',//HTTP请求类型
-					timeout:10000,//超时时间设置为10秒；
-					success:function(data){
-						console.log(JSON.stringify(data));
-						if (data.data.length>0) {
-							$('OA_task_2').html('');
-							$('#tmpl').tmpl(data).appendTo('#OA_task_2');
+			mui.plusReady(function() {
+				mui.init({
+					beforeback: function() {
+						if (control) {
+							
 						}else{
-							mui.toast('暂无匹配结果');
+							if(satnav) {
+								var index = plus.webview.getWebviewById('index.html');
+								mui.fire(index, 'satnav', address);
+							}
 						}
-						plus.nativeUI.closeWaiting();
-					},
-					error:function(xhr,type,errorThrown){
-						plus.nativeUI.closeWaiting();
-						mui.toast('网络超时！');
+						return true;
 					}
 				});
-			}
-			$('#btn').on('tap',function(){
-				if ($('#search').val()=='') {
-					return false;
+
+				var self = plus.webview.currentWebview();
+				var control = self.control;
+				var satnav = false;
+				document.getElementById("search").focus();
+
+				function pulldownRefresh() {
+					var user = JSON.parse(localStorage.getItem('$guardUser'));
+					plus.nativeUI.showWaiting();
+					mui.ajax(util.url + '/BaseList', {
+						data: {
+							userName: user.userName,
+							password: user.password,
+							ip: user.ip,
+							keyWord: $('#search').val()
+						},
+						dataType: 'json', //服务器返回json格式数据
+						type: 'post', //HTTP请求类型
+						timeout: 10000, //超时时间设置为10秒；
+						success: function(data) {
+							console.log(JSON.stringify(data));
+							if(data.data.length > 0) {
+								$('OA_task_2').html('');
+								$('#tmpl').tmpl(data).appendTo('#OA_task_2');
+							} else {
+								mui.toast('暂无匹配结果');
+							}
+							plus.nativeUI.closeWaiting();
+						},
+						error: function(xhr, type, errorThrown) {
+							plus.nativeUI.closeWaiting();
+							mui.toast('网络超时！');
+						}
+					});
 				}
-				console.log($('#search').val());
-				$('#OA_task_2').html('');
-				pulldownRefresh();
-			});
-			
-			var address;
-			$('#OA_task_2').on('tap','li',function(){
-					satnav = true;
-					address = {
-						longitude:$(this).attr('longitude'),
-						latitude:$(this).attr('latitude'),
-						des:$(this).attr('des')
-					};
-					mui.back();
-			});
+				$('#btn').on('tap', function() {
+					if($('#search').val() == '') {
+						return false;
+					}
+					console.log($('#search').val());
+					$('#OA_task_2').html('');
+					pulldownRefresh();
+				});
+
+				var address;
+				$('#OA_task_2').on('tap', 'li', function() {
+					if(control) {
+						var user = JSON.parse(util.getUser());
+						var longitude = $(this).attr('longitude');
+						var latitude = $(this).attr('latitude');
+						var des = $(this).attr('des');
+						var status = $(this).attr('liStatus');
+						var mac = $(this).attr('mac');
+						mui.ajax(util.url + '/SetTime', {
+							data: {
+								userName: user.userName,
+								password: user.password,
+								ip: user.ip,
+								mac: $(this).attr('mac')
+							},
+							dataType: 'json', //服务器返回json格式数据
+							type: 'post', //HTTP请求类型
+							timeout: 10000, //超时时间设置为10秒；
+							success: function(data) {
+								if(data.connection == 0) {
+									mui.toast('仪器未连接');
+								} else {
+									satnav = true;
+									address = {
+										longitude: longitude,
+										latitude: latitude,
+										des: des,
+										status: status,
+										mac: mac
+									};
+									mui.openWindow('control/control.html', 'control.html', {
+										extras: {
+											data: address
+										},
+										createNew: true
+									});
+								}
+							},
+							error: function(xhr, type, errorThrown) {
+
+							}
+						});
+					} else {
+						satnav = true;
+						address = {
+							longitude: $(this).attr('longitude'),
+							latitude: $(this).attr('latitude'),
+							des: $(this).attr('des')
+						};
+						mui.back();
+					}
+				});
+			})
 		</script>
 	</body>
 

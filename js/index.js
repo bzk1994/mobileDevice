@@ -188,7 +188,6 @@ function plusReady() {
 			timeout: 10000, //超时时间设置为10秒；
 			success: function(data) {
 				if(data.error_code == 0) {
-					console.log(JSON.stringify(data));
 					//getBase();
 					map.clearOverlays();
 					var base = data.lonlatdata;
